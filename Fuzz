@@ -1,0 +1,123 @@
+-- Delta Hider + Corner Controls
+-- Bottom-Left = Toggle Delta
+-- Top-Right   = Run Adapt
+
+local gethui = gethui or get_hidden_gui or function()
+	return game:GetService("CoreGui")
+end
+
+local hidden = true
+
+local function isDeltaGui(gui)
+	if not gui:IsA("ScreenGui") then return false end
+
+	local img = gui:FindFirstChildOfClass("ImageButton") or gui:FindFirstChildOfClass("ImageLabel")
+	if img then
+		local id = tostring(img.Image):lower()
+		if id:find("logo") or id:find("ninja") or id:find("delta") or id:find("hood") then
+			return true
+		end
+	end
+
+	if gui:FindFirstChild("Console")
+	or gui:FindFirstChild("Executor")
+	or gui:FindFirstChild("ScriptHub")
+	or gui:FindFirstChild("IsTween")
+	or gui:FindFirstChild("Home") then
+		return true
+	end
+
+	return false
+end
+
+local function hideDelta()
+	for _, gui in pairs(gethui():GetChildren()) do
+		if isDeltaGui(gui) then
+			gui.Enabled = false
+		end
+	end
+	hidden = true
+end
+
+local function showDelta()
+	for _, gui in pairs(gethui():GetChildren()) do
+		if isDeltaGui(gui) then
+			gui.Enabled = true
+		end
+	end
+	hidden = false
+end
+
+-- ========== BOTTOM-LEFT: Toggle Delta ==========
+local function createBottomLeft()
+	if gethui():FindFirstChild("DeltaBottomLeft") then return end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "DeltaBottomLeft"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.Parent = gethui()
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 80, 0, 80)
+	btn.Position = UDim2.new(0, 0, 1, -80) -- bottom-left
+	btn.BackgroundTransparency = 1
+	btn.Text = ""
+	btn.ZIndex = 10
+	btn.Parent = gui
+
+	btn.MouseButton1Click:Connect(function()
+		if hidden then
+			showDelta()
+			print("Delta shown")
+		else
+			hideDelta()
+			print("Delta hidden")
+		end
+	end)
+end
+
+-- ========== TOP-RIGHT: Run Adapt ==========
+local function createTopRight()
+	if gethui():FindFirstChild("ScriptTopRight") then return end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "ScriptTopRight"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.Parent = gethui()
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 80, 0, 80)
+	btn.Position = UDim2.new(1, -80, 0, 0) -- top-right
+	btn.BackgroundTransparency = 1
+	btn.Text = ""
+	btn.ZIndex = 10
+	btn.Parent = gui
+
+	btn.MouseButton1Click:Connect(function()
+		print("Running Adapt...")
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/methodix-coderv2/Stealabrainrot-orig/refs/heads/main/Duelfiles.lua"))()
+	end)
+end
+
+-- Start
+hideDelta()
+createBottomLeft()
+createTopRight()
+
+-- Keep forcing Delta hidden
+task.spawn(function()
+	while true do
+		task.wait(0.35)
+		if hidden then
+			hideDelta()
+		end
+	end
+end)
+
+print("Loaded!")
+print("Bottom-Left → Show/Hide Delta")
+print("Top-Right   → Run Adapt")
